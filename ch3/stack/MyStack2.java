@@ -1,4 +1,4 @@
-package stack;
+package ch3.stack;
 
 
 // Stack이 유용한 경우 : 재귀 알고리즘 사용할 때(backtracking 등)

@@ -1,4 +1,4 @@
-package list.linked;
+package ch2.list.linked;
 
 public class MyLinkedList {
 

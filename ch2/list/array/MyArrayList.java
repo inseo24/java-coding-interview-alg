@@ -1,4 +1,4 @@
-package list.array;
+package ch2.list.array;
 
 import java.util.*;
 
@@ -11,8 +11,8 @@ public class MyArrayList<T> implements List<T> {
      */
     @SuppressWarnings("unchecked")
     public MyArrayList() {
-        // You can't instantiate an list.array of T[], but you can instantiate an
-        // list.array of Object and then typecast it.  Details at
+        // You can't instantiate an ch2.list.array of T[], but you can instantiate an
+        // ch2.list.array of Object and then typecast it.  Details at
         // http://www.ibm.com/developerworks/java/library/j-jtp01255/index.html
         array = (T[]) new Object[10];
         size = 0;
@@ -79,7 +79,7 @@ public class MyArrayList<T> implements List<T> {
     @Override
     public void clear() {
         // note: this version does not actually null out the references
-        // in the list.array, so it might delay garbage collection.
+        // in the ch2.list.array, so it might delay garbage collection.
         size = 0;
     }
 
@@ -115,7 +115,7 @@ public class MyArrayList<T> implements List<T> {
         return -1;
     }
 
-    /** Checks whether an element of the list.array is the target.
+    /** Checks whether an element of the ch2.list.array is the target.
      *
      * Handles the special case that the target is null.
      *
@@ -137,9 +137,9 @@ public class MyArrayList<T> implements List<T> {
 
     @Override
     public Iterator<T> iterator() {
-        // make a copy of the list.array
+        // make a copy of the ch2.list.array
         T[] copy = Arrays.copyOf(array, size);
-        // make a list and return an iterator
+        // make a ch2.list and return an iterator
         return Arrays.asList(copy).iterator();
     }
 
@@ -156,17 +156,17 @@ public class MyArrayList<T> implements List<T> {
 
     @Override
     public ListIterator<T> listIterator() {
-        // make a copy of the list.array
+        // make a copy of the ch2.list.array
         T[] copy = Arrays.copyOf(array, size);
-        // make a list and return an iterator
+        // make a ch2.list and return an iterator
         return Arrays.asList(copy).listIterator();
     }
 
     @Override
     public ListIterator<T> listIterator(int index) {
-        // make a copy of the list.array
+        // make a copy of the ch2.list.array
         T[] copy = Arrays.copyOf(array, size);
-        // make a list and return an iterator
+        // make a ch2.list and return an iterator
         return Arrays.asList(copy).listIterator(index);
     }
 

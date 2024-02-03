@@ -1,4 +1,4 @@
-package stack;
+package ch3.stack;
 
 import java.util.Arrays;
 

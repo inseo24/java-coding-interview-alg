@@ -1,4 +1,4 @@
-package list.array;
+package ch2.list.array;
 
 // ArrayList 구현
 public class MyArrayList2<T> {

@@ -1,7 +1,4 @@
-package list.linked;
-
-import java.util.LinkedList;
-import java.util.Stack;
+package ch2.list.linked;
 
 public class LinkedListTest {
     // LinkedListNode

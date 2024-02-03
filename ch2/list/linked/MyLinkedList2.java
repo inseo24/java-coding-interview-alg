@@ -1,4 +1,4 @@
-package list.linked;
+package ch2.list.linked;
 
 // Concurrent Linked List
 public class MyLinkedList2<T> {

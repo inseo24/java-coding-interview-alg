@@ -1,4 +1,4 @@
-package queue;
+package ch3.queue;
 
 
 public class MyQueue2<T> {

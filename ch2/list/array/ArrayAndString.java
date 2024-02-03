@@ -1,4 +1,4 @@
-package list.array;
+package ch2.list.array;
 
 import java.util.Arrays;
 import java.util.HashSet;
