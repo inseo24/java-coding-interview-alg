@@ -1,4 +1,4 @@
-package ch2.list.string;
+package ch2.string;
 
 // StringBuilder 구현하기
 public class MyStringBuilder {
