@@ -23,7 +23,7 @@ public class StackAndQueue1 {
 
         public FixedMultiStack(int stackSize) {
             stackCapacity = stackSize;
-            values = new int[stackSize * numberOfStacks];
+            values = new int[stackSize * numberOfStacks]; // 3 * 3 = 9
             sizes = new int[numberOfStacks];
         }
 

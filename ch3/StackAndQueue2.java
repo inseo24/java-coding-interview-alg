@@ -43,18 +43,18 @@ public class StackAndQueue2 {
     }
 
     // 3.5 정렬 스택: 가장 작은 값이 위로 오도록 스택을 정렬하는 프로그램을 작성하라.
-    void sort(Stack<Integer> s) {
-        Stack<Integer> r = new Stack<Integer>();
-        while (!s.isEmpty()) {
-            int tmp = s.pop();
-            while (!r.isEmpty() && r.peek() > tmp) {
-                s.push(r.pop());
+    void sort(Stack<Integer> left) {
+        Stack<Integer> right = new Stack<Integer>();
+        while (!left.isEmpty()) {
+            int tmp = left.pop();
+            while (!right.isEmpty() && right.peek() > tmp) {
+                left.push(right.pop());
             }
-            r.push(tmp);
+            right.push(tmp);
         }
 
-        while (!r.isEmpty()) {
-            s.push(r.pop());
+        while (!right.isEmpty()) {
+            left.push(right.pop());
         }
     }
 
