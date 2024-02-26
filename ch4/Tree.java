@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 
 public class Tree {
 
@@ -29,9 +31,11 @@ public class Tree {
         public TreeNode left;
         public TreeNode right;
         public TreeNode parent;
+        private int size = 0;
 
         public TreeNode(int data) {
             this.data = data;
+            size = 1;
         }
 
         // 트리 노드 출력
@@ -51,6 +55,42 @@ public class Tree {
                 }
             }
         }
+
+        // 4.11
+        public TreeNode getRandomNode() {
+            int leftSize = left == null ? 0 : left.size();
+            Random random = new Random();
+            int index = random.nextInt(size);
+            if (index < leftSize) {
+                return left.getRandomNode();
+            } else if (index == leftSize) {
+                return this;
+            } else {
+                return right.getRandomNode();
+            }
+        }
+
+        public int size() {
+            return size;
+        }
+
+        public void insertInOrder(int d) {
+            if (d <= data) {
+                if (left == null) {
+                    left = new TreeNode(d);
+                } else {
+                    left.insertInOrder(d);
+                }
+            } else {
+                if (right == null) {
+                    right = new TreeNode(d);
+                } else {
+                    right.insertInOrder(d);
+                }
+            }
+        }
+
+
     }
 
     enum State {
@@ -203,6 +243,282 @@ public class Tree {
             n = n.left;
         }
         return n;
+    }
+
+    // 4.7 순서 정하기: 프로젝트의 의존 관계가 주어졌을 때, 프로젝트를 수행하는 순서를 찾는 알고리즘
+    // 모든 노드에 대해 진입 차수(들어오는 에지 수)를 계산
+    // 진입 차수가 0인 노드를 큐에 넣음
+    // 큐가 빌 때까지 다음 과정을 반복
+    // - 큐에서 노드를 꺼내고, 이 노드는 수행 순서 리스트에 추가
+    // - 이 노드에서 나가는 모든 에지를 제거하고, 연결된 노드이 진입 차수를 감소시킴
+    // - 진입 차수가 0이 된 노드를 큐에 넣음
+    // 모든 노드를 방문했는데도 큐가 비지 않으면, 루프가 존재한다는 뜻이므로 순서를 찾을 수 없음
+    public class Project {
+        private ArrayList<Project> children = new ArrayList<Project>();
+        private HashMap map = new HashMap();
+        private String name;
+        private int dependencies = 0;
+
+        public Project(String n) {
+            name = n;
+        }
+
+        public void addNeighbor(Project node) {
+            if (!map.containsKey(node.getName())) {
+                children.add(node);
+                map.put(node.getName(), node);
+                node.incrementDependencies();
+            }
+        }
+
+        public void incrementDependencies() {
+            dependencies++;
+        }
+
+        public void decrementDependencies() {
+            dependencies--;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public ArrayList<Project> getChildren() {
+            return children;
+        }
+
+        public int getNumberDependencies() {
+            return dependencies;
+        }
+    }
+
+    public class Graph_v2 {
+        private ArrayList<Project> nodes = new ArrayList<Project>();
+        private HashMap<String, Project> map = new HashMap<String, Project>();
+
+        public Project getOrCreateNode(String name) {
+            if (!map.containsKey(name)) {
+                Project node = new Project(name);
+                nodes.add(node);
+                map.put(name, node);
+            }
+
+            return map.get(name);
+        }
+
+        public void addEdge(String startName, String endName) {
+            Project start = getOrCreateNode(startName);
+            Project end = getOrCreateNode(endName);
+            start.addNeighbor(end);
+        }
+
+        public ArrayList<Project> getNodes() {
+            return nodes;
+        }
+    }
+
+    public class Solution {
+        public Project[] findBuildOrder(String[] projects, String[][] dependencies) {
+            Graph_v2 graph = buildGraph(projects, dependencies);
+            return orderProjects(graph.getNodes());
+        }
+
+        public Graph_v2 buildGraph(String[] projects, String[][] dependencies) {
+            Graph_v2 graph = new Graph_v2();
+            for (String project : projects) {
+                graph.getOrCreateNode(project);
+            }
+
+            for (String[] dependency : dependencies) {
+                String first = dependency[0];
+                String second = dependency[1];
+                graph.addEdge(first, second);
+            }
+
+            return graph;
+        }
+
+        public Project[] orderProjects(ArrayList<Project> projects) {
+            Project[] order = new Project[projects.size()];
+
+            int endOfList = addNonDependent(order, projects, 0);
+
+            int toBeProcessed = 0;
+            while (toBeProcessed < order.length) {
+                Project current = order[toBeProcessed];
+
+                if (current == null) {
+                    return null;
+                }
+
+                ArrayList<Project> children = current.getChildren();
+                for (Project child : children) {
+                    child.decrementDependencies();
+                }
+
+                endOfList = addNonDependent(order, children, endOfList);
+                toBeProcessed++;
+            }
+
+            return order;
+        }
+
+        public int addNonDependent(Project[] order, ArrayList<Project> projects, int offset) {
+            for (Project project : projects) {
+                if (project.getNumberDependencies() == 0) {
+                    order[offset] = project;
+                    offset++;
+                }
+            }
+
+            return offset;
+        }
+    }
+
+
+
+    // 4.8 첫 번째 공통 조상: 이진 트리에서 두 노드의 첫 번째 공통 조상을 찾는 알고리즘
+    TreeNode commonAncestor(TreeNode p, TreeNode q) {
+        int delta = depth(p) - depth(q); // p와 q의 깊이 차이를 계산
+        TreeNode first = delta > 0 ? q : p; // 더 깊은 노드를 찾음
+        TreeNode second = delta > 0 ? p : q; // 더 얕은 노드를 찾음
+        second = goUpBy(second, Math.abs(delta)); // 더 깊은 노드를 더 얕은 노드의 높이만큼 올림
+
+        // 두 노드가 같아질 때까지 위로 올림
+        while (first != second && first != null && second != null) {
+            first = first.parent;
+            second = second.parent;
+        }
+        return first == null || second == null ? null : first;
+    }
+
+    TreeNode goUpBy(TreeNode node, int delta) {
+        while (delta > 0 && node != null) {
+            node = node.parent;
+            delta--;
+        }
+        return node;
+    }
+
+    int depth(TreeNode n) {
+        int depth = 0;
+        while (n != null) {
+            n = n.parent;
+            depth++;
+        }
+        return depth;
+    }
+
+
+    // 4.9 BST 수열: 이진 탐색 트리 안에서 원소가 중복되지 않는다고 할 때, 주어진 이진 탐색 트리를 만들 수 있는 모든 배열을 출력하는 알고리즘
+    ArrayList<LinkedList<Integer>> allSequences(TreeNode node) {
+        ArrayList<LinkedList<Integer>> result = new ArrayList<LinkedList<Integer>>();
+
+        if (node == null) {
+            result.add(new LinkedList<Integer>());
+            return result;
+        }
+
+        LinkedList<Integer> prefix = new LinkedList<Integer>();
+        prefix.add(node.data);
+
+        // 왼쪽 서브트리와 오른쪽 서브트리의 모든 배열을 계산
+        ArrayList<LinkedList<Integer>> leftSeq = allSequences(node.left);
+        ArrayList<LinkedList<Integer>> rightSeq = allSequences(node.right);
+
+        // 왼쪽 서브트리와 오른쪽 서브트리의 모든 배열을 조합
+        for (LinkedList<Integer> left : leftSeq) {
+            for (LinkedList<Integer> right : rightSeq) {
+                ArrayList<LinkedList<Integer>> weaved = new ArrayList<LinkedList<Integer>>();
+                weaveLists(left, right, weaved, prefix);
+                result.addAll(weaved);
+            }
+        }
+
+        return result;
+    }
+
+    void weaveLists(LinkedList<Integer> first, LinkedList<Integer> second, ArrayList<LinkedList<Integer>> results, LinkedList<Integer> prefix) {
+        // 한쪽 리스트가 비어있으면 나머지 리스트를 결과에 추가
+        if (first.size() == 0 || second.size() == 0) {
+            LinkedList<Integer> result = (LinkedList<Integer>) prefix.clone();
+            result.addAll(first);
+            result.addAll(second);
+            results.add(result);
+            return;
+        }
+
+        // 첫 번째 원소를 리스트에서 제거
+        int headFirst = first.removeFirst();
+        prefix.addLast(headFirst);
+        weaveLists(first, second, results, prefix);
+        prefix.removeLast();
+        first.addFirst(headFirst);
+
+        // 두 번째 원소를 리스트에서 제거
+        int headSecond = second.removeFirst();
+        prefix.addLast(headSecond);
+        weaveLists(first, second, results, prefix);
+        prefix.removeLast();
+        second.addFirst(headSecond);
+    }
+
+
+    // 4.10 하위 트리 확인: 주어진 두 이진 트리 t1과 t2가 t2가 t1의 하위 트리인지 확인하는 알고리즘
+    boolean containsTree(TreeNode t1, TreeNode t2) {
+        if (t2 == null) return true; // 빈 트리는 어떤 트리의 하위 트리이다.
+        return subTree(t1, t2);
+    }
+
+    boolean subTree(TreeNode r1, TreeNode r2) {
+        if (r1 == null) {
+            return false; // 큰 트리가 빈 트리에 포함되지 않으면
+        } else if (r1.data == r2.data && matchTree(r1, r2)) {
+            return true;
+        }
+        return subTree(r1.left, r2) || subTree(r1.right, r2);
+    }
+
+    boolean matchTree(TreeNode r1, TreeNode r2) {
+        if (r1 == null && r2 == null) {
+            return true; // 두 트리가 모두 빈 트리이면
+        } else if (r1 == null || r2 == null) {
+            return false; // 한 트리가 빈 트리이면
+        } else if (r1.data != r2.data) {
+            return false; // 데이터가 다르면
+        } else {
+            return matchTree(r1.left, r2.left) && matchTree(r1.right, r2.right);
+        }
+    }
+
+
+    // 4.11 임의의 노드: 이진 트리 클래스를 확장하여 임의의 노드에 빠르게 접근할 수 있는 getRandNode() 함수를 구현
+
+    // 4.12 합의 경로: 각 노드의 값이 정수인 이진 트리가 주어졌을 때, 특정한 합을 가지는 경로의 개수를 찾는 알고리즘
+    int countPathsWithSum(TreeNode root, int targetSum) {
+        if (root == null) return 0;
+        int pathsFromRoot = countPathsWithSumFromNode(root, targetSum, 0);
+
+        int pathsOnLeft = countPathsWithSum(root.left, targetSum);
+        int pathsOnRight = countPathsWithSum(root.right, targetSum);
+
+        return pathsFromRoot + pathsOnLeft + pathsOnRight;
+    }
+
+    int countPathsWithSumFromNode(TreeNode node, int targetSum, int currentSum) {
+        if (node == null) return 0;
+
+        currentSum += node.data;
+
+        int totalPaths = 0;
+        if (currentSum == targetSum) {
+            totalPaths++;
+        }
+
+        totalPaths += countPathsWithSumFromNode(node.left, targetSum, currentSum);
+        totalPaths += countPathsWithSumFromNode(node.right, targetSum, currentSum);
+
+        return totalPaths;
     }
 
     public static void main(String[] args) {
